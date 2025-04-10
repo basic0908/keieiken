@@ -20,7 +20,8 @@ class VideoPlayer:
             pygame.mixer.music.play()
 
         cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
-        cv2.resizeWindow(window_name, 640, 360)
+        enlargeBy = 1.5 # ウィンドウサイズ
+        cv2.resizeWindow(window_name, int(640*enlargeBy), int(360*enlargeBy))
 
         start_time = time.time()
         frame_index = 0

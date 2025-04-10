@@ -4,6 +4,7 @@ from video_player import VideoPlayer
 def main():
     parser = argparse.ArgumentParser(description="play music video")
     parser.add_argument('--video',default="青と夏", help='ビデオのタイトル')
+
     args = parser.parse_args()
 
     song = args.video
