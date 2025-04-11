@@ -20,7 +20,7 @@ class VideoPlayer:
             pygame.mixer.music.play()
 
         cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
-        enlargeBy = 1.5 # ウィンドウサイズ
+        enlargeBy = 1.0 # ウィンドウサイズ
         cv2.resizeWindow(window_name, int(640*enlargeBy), int(360*enlargeBy))
 
         start_time = time.time()
