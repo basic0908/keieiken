@@ -8,7 +8,7 @@ def run_video(video_path, audio_path):
     vp.play()
 
 def run_hand_tracker():
-    tracker = HandTracker(track_hand="Right")
+    tracker = HandTracker(track_hand="Left")
     tracker.run()
 
 if __name__ == "__main__":
