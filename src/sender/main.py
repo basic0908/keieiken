@@ -6,7 +6,7 @@ from src.utils.connection import setup_sender_connection, send_data
 import cv2
 
 
-def wait_for_receiver(host='localhost', port=9999, timeout=10):
+def wait_for_receiver(host='192.168.11.5', port=9999, timeout=30):
     print("[INFO] Attempting to connect to receiver...")
     start_time = time.time()
     while True:
@@ -18,6 +18,7 @@ def wait_for_receiver(host='localhost', port=9999, timeout=10):
             if time.time() - start_time > timeout:
                 raise TimeoutError(f"[ERROR] Could not connect to receiver within {timeout} seconds.")
             print("[INFO] Retrying connection...")
+            print(e)
             time.sleep(1)
 
 
@@ -35,9 +36,8 @@ def run_hand_tracker(conn):
 
             frame = tracker.update(frame)
 
-            # Send location data
-            if tracker.locations:
-                send_data(conn, tracker.locations)
+            # Continuously send location data
+            send_data(conn, tracker.locations)
 
             # Show preview (optional)
             cv2.imshow("Sender - Hand Tracker", frame)
@@ -58,7 +58,7 @@ def run_hand_tracker(conn):
 
 if __name__ == "__main__":
     # Wait for connection to receiver
-    conn = wait_for_receiver(host='localhost', port=9999)
+    conn = wait_for_receiver(host='192.168.11.5', port=9999)
 
     # Run hand tracker with connection
     run_hand_tracker(conn)

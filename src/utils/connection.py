@@ -1,11 +1,23 @@
 import socket
 import pickle
 
-def setup_sender_connection(host='localhost', port=9999):
+
+def setup_sender_connection(host='192.168.11.5', port=9999, timeout=30):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((host, port))
-    print(f"[Sender] Connected to {host}:{port}")
-    return s
+    s.settimeout(timeout)  # Set connection timeout
+    try:
+        s.connect((host, port))
+        print(f"[Sender] Connected to {host}:{port}")
+        return s
+    except socket.timeout:
+        print(f"[Sender] Connection to {host}:{port} timed out after {timeout} seconds.")
+        s.close()
+        raise
+    except Exception as e:
+        print(f"[Sender] Failed to connect to {host}:{port}: {e}")
+        s.close()
+        raise
+
 
 def setup_receiver_connection(host='0.0.0.0', port=9999):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
