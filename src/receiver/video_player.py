@@ -1,6 +1,29 @@
 import cv2
 import pygame
 import time
+import numpy as np
+
+# Shared PLV state
+shared_state = {"plv": 0.0}
+
+def plv_overlay(frame):
+    plv = shared_state.get("plv", 0.0)
+
+    # Remap PLV range [0.93, 1.00] → [0, 1]
+    adjusted = (plv - 0.93) / 0.07
+    adjusted = np.clip(adjusted, 0.0, 1.0)
+
+    # Interpolate blue → red
+    r = int(255 * adjusted)
+    g = 0
+    b = int(255 * (1 - adjusted))
+    tint = (b, g, r)  # OpenCV = BGR
+
+    overlay = frame.copy()
+    overlay[:] = tint
+    return cv2.addWeighted(frame, 0.7, overlay, 0.3, 0)
+
+
 
 class VideoPlayer:
     def __init__(self, video_path, audio_path=None):
@@ -20,22 +43,20 @@ class VideoPlayer:
             pygame.mixer.music.play()
 
         cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
-        enlargeBy = 1.0 # ウィンドウサイズ
-        cv2.resizeWindow(window_name, int(640*enlargeBy), int(360*enlargeBy))
+        enlargeBy = 1.0
+        cv2.resizeWindow(window_name, int(640 * enlargeBy), int(360 * enlargeBy))
 
         start_time = time.time()
         frame_index = 0
 
         while self.cap.isOpened():
-            elapsed_time = time.time() - start_time # 再生時間
-            expected_frame = int(elapsed_time * self.frame_rate) # 現在のフレーム数
+            elapsed_time = time.time() - start_time
+            expected_frame = int(elapsed_time * self.frame_rate)
 
-            # 遅れたフレームをスキップして追いつく
             while frame_index < expected_frame - 1:
                 self.cap.grab()
                 frame_index += 1
 
-            # Read the actual frame to display
             ret, frame = self.cap.read()
             if not ret:
                 print("End of video.")
@@ -49,7 +70,6 @@ class VideoPlayer:
             frame = cv2.resize(frame, (640, 360))
             cv2.imshow(window_name, frame)
 
-            # 映像が早すぎる場合
             next_frame_time = (frame_index / self.frame_rate)
             time_to_wait = next_frame_time - (time.time() - start_time)
             if time_to_wait > 0:
@@ -64,14 +84,5 @@ class VideoPlayer:
         if self.audio_path:
             pygame.mixer.music.stop()
 
-
     def get_frame_dimensions(self):
         return int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
-if __name__ == "__main__":
-    song = "青と夏"
-    video_path = f"C:/Users/ryoii/OneDrive/Documents/GitHub/keieiken/assets/{song}.mp4"
-    audio_path = f"C:/Users/ryoii/OneDrive/Documents/GitHub/keieiken/assets/{song}.mp3"
-
-    vp = VideoPlayer(video_path, audio_path)
-    vp.play()
