@@ -1,26 +1,27 @@
-import cv2
+import argparse
+import threading
 import time
-import socket
 from src.utils.HandTracker import HandTracker
 from src.utils.connection import setup_sender_connection, send_data
+import cv2
 
 
-def wait_for_receiver(host='localhost', port=9999, timeout=1, retry_delay=2):
-    """Keep trying to connect to the receiver until successful."""
+def wait_for_receiver(host='localhost', port=9999, timeout=10):
+    print("[INFO] Attempting to connect to receiver...")
+    start_time = time.time()
     while True:
         try:
             conn = setup_sender_connection(host, port, timeout)
             print(f"[INFO] Connected to receiver at {host}:{port}")
             return conn
-        except (ConnectionRefusedError, socket.timeout):
-            print(f"[INFO] Waiting for receiver... Retrying in {retry_delay}s")
-            time.sleep(retry_delay)
+        except Exception as e:
+            if time.time() - start_time > timeout:
+                raise TimeoutError(f"[ERROR] Could not connect to receiver within {timeout} seconds.")
+            print("[INFO] Retrying connection...")
+            time.sleep(1)
 
 
-def main():
-    print("[INFO] Attempting to connect to receiver...")
-    conn = wait_for_receiver(host='localhost', port=9999)
-
+def run_hand_tracker(conn):
     tracker = HandTracker(track_hand="Right")
     cap = cv2.VideoCapture(0)
 
@@ -38,7 +39,7 @@ def main():
             if tracker.locations:
                 send_data(conn, tracker.locations)
 
-            # Show preview
+            # Show preview (optional)
             cv2.imshow("Sender - Hand Tracker", frame)
 
             key = cv2.waitKey(1) & 0xFF
@@ -46,7 +47,8 @@ def main():
                 print("[INFO] Exiting on key 'w'")
                 break
 
-            time.sleep(0.01)  # Avoid flooding
+            time.sleep(0.01)
+
     finally:
         cap.release()
         tracker.release()
@@ -55,4 +57,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # Wait for connection to receiver
+    conn = wait_for_receiver(host='localhost', port=9999)
+
+    # Run hand tracker with connection
+    run_hand_tracker(conn)
