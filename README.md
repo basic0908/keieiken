@@ -14,7 +14,7 @@
 
 ### Phase Locking Value Algorithm
 consitency of the phase difference beween two signals over time
-1. Input: r(t), s(t) # receiver/sender hand Y-corodinates
+1. Input: r(t), s(t) # receiver/sender hand Y-corodinates 0.05(sampling freq) * past 100 datapoints = 過去5秒間におけるY座標の変化
 2. Apply Hilbert Transformation # scipy.signal.Hilbert()
 3. Compute Instantenous Phase # np.angle()
 4. Computer Phase Difference # np.arctan2(np.sin(delta), np.cos(delta))
