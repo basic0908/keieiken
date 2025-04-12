@@ -10,3 +10,6 @@
 2. `pip install -r requirements.txt` on both computers
 3. Sender side : ensure ip address of the receiver is correctly configured`python -m src.sender.main`
 4. Receiver side : `python -m src.receiver.main --video {music title}`
+
+- Blue -> low PLV
+- Red -> high PLV
