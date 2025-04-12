@@ -12,5 +12,13 @@
 3. Sender side : ensure ip address of the receiver is correctly configured`python -m src.sender.main`
 4. Receiver side : `python -m src.receiver.main --video {music title}`
 
+### Phase Locking Value Algorithm
+consitency of the phase difference beween two signals over time
+1. Input: r(t), s(t) # receiver/sender hand Y-corodinates
+2. Apply Hilbert Transformation # scipy.signal.Hilbert()
+3. Compute Instantenous Phase # np.angle()
+4. Computer Phase Difference # np.arctan2(np.sin(delta), np.cos(delta))
+5. Compute PLV # np.abs(np.sum(np.exp(1j * phase_diff))) / len(phase_diff)
+
 - Blue -> low PLV
 - Red -> high PLV
